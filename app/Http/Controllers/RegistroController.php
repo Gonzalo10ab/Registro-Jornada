@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Mail\RegistroNotificacionMarkdown;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\RegistroNotificacionMarkdown;
 use App\Models\User; // Importamos el modelo User
 use App\Models\Registro; // Importamos el modelo Registro
 use Illuminate\Http\Request; // Importamos la clase Request para manejar las solicitudes HTTP
@@ -60,15 +60,31 @@ class RegistroController extends Controller
 
     //     return redirect()->back()->with('success', 'Entrada registrada correctamente.');
     // }
+
     public function entrada(Request $request)
     {
         \Log::info('Datos recibidos en la solicitud:', $request->all());
-    
+
+        $empresaLat = 37.8830848;
+        $empresaLon = -4.7808512;
+        
+        $lat = $request->latitude;
+        $lon = $request->longitude;
+        
+        // Calcula la distancia
+        $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $lat, $lon);
+        
+        \Log::info("Distancia calculada: $distancia metros");
+        
+        // Devuelve la distancia en la respuesta para probar
         return response()->json([
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude
+            'latitude' => $lat,
+            'longitude' => $lon,
+            'distancia' => $distancia
         ]);
+        
     }
+    
     
     /**
      * Registrar salida.
