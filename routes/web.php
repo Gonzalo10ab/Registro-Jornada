@@ -50,5 +50,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/usuarios/pdf', 'exportarPDFMasivo')->name('admin.usuarios.pdf-masivo');
     });
     
+    Route::get('/hora', function () {
+        return response()->json([
+            'timezone' => config('app.timezone'),
+            'server_time' => now()->toDateTimeString(),
+            'utc_time' => now()->setTimezone('UTC')->toDateTimeString(),
+        ]);
+    });
+    
 
 });
