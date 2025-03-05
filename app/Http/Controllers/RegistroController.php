@@ -45,7 +45,7 @@ class RegistroController extends Controller
 
         // Calcular distancia
         $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $request->latitude, $request->longitude);
-                if ($distancia > 100) {
+                if ($distancia > 200) {
             return redirect()->back()->with('error', 'Debe estar cerca de la empresa para fichar.');
         }
 
@@ -84,7 +84,7 @@ class RegistroController extends Controller
         // Calcular distancia
         $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $request->latitude, $request->longitude);
         
-        if ($distancia > 100) {
+        if ($distancia > 200) {
             return redirect()->back()->with('error', 'Debe estar cerca de la empresa para fichar.');
         }
 
