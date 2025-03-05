@@ -13,7 +13,7 @@ class Registro extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'departure_time']; // Eliminamos 'entry_time' para evitar que se sobrescriba
+    protected $fillable = ['user_id', 'entry_time', 'departure_time'];
     protected $dates = ['entry_time', 'departure_time']; // Definimos los campos como fechas
 
     /**
