@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('registros', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->index()->constrained('users')->onDelete('set null');
-            $table->timestamp('entry_time')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('entry_time');
             $table->timestamp('departure_time')->nullable();
             $table->timestamps();
             
