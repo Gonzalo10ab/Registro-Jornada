@@ -26,69 +26,40 @@ class RegistroController extends Controller
      * Registrar entrada.
      * Este método permite registrar la hora de entrada de un usuario.
      */
-    // public function entrada(Request $request)
-    // {
-    //     $request->validate([
-    //         'latitude' => 'required|numeric',
-    //         'longitude' => 'required|numeric',
-    //     ]);
-
-    //     $user = auth()->user();
-
-    //     if ($user->is_active) {
-    //         return redirect()->back()->with('error', 'Ya tiene una entrada registrada.');
-    //     }
-
-    //     // Coordenadas de la empresa (cámbialas por las reales)
-    //     $empresaLat = 37.889258;
-    //     $empresaLon = -4.762155;
-
-    //     // Calcular distancia
-    //     $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $request->latitude, $request->longitude);
-    //             if ($distancia > 200) {
-    //         return redirect()->back()->with('error', 'Debe estar cerca de la empresa para fichar.');
-    //     }
-
-    //     $registro = Registro::create([
-    //         'user_id' => $user->id,
-    //         'entry_time' => now()
-    //     ]);
-
-    //     $user->is_active = true;
-    //     $user->save();
-    //     Mail::to($user->email)->queue(new RegistroNotificacionMarkdown($user, 'entrada'));
-
-    //     return redirect()->back()->with('success', 'Entrada registrada correctamente.');
-    // }
-
-
     public function entrada(Request $request)
-{
-    // Coordenadas de la empresa (cámbialas si es necesario)
-    $empresaLat = 37.8830848;
-    $empresaLon = -4.7808512;
+    {
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
 
-    // Coordenadas del usuario recibidas en la petición
-    $latUsuario = $request->latitude;
-    $lonUsuario = $request->longitude;
+        $user = auth()->user();
 
-    // Calcular la distancia
-    $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $latUsuario, $lonUsuario);
+        if ($user->is_active) {
+            return redirect()->back()->with('error', 'Ya tiene una entrada registrada.');
+        }
 
-    // Guardar en logs para depuración
-    \Log::info("Ubicación de la empresa: Lat: $empresaLat, Lon: $empresaLon");
-    \Log::info("Ubicación del usuario: Lat: $latUsuario, Lon: $lonUsuario");
-    \Log::info("Distancia calculada: $distancia metros");
+        // Coordenadas de la empresa (cámbialas por las reales)
+        $empresaLat = 37.8863616;
+        $empresaLon = -4.7742976;
 
-    // Devolver la información para depuración
-    return response()->json([
-        'empresa_lat' => $empresaLat,
-        'empresa_lon' => $empresaLon,
-        'usuario_lat' => $latUsuario,
-        'usuario_lon' => $lonUsuario,
-        'distancia' => $distancia
-    ]);
-}
+        // Calcular distancia
+        $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $request->latitude, $request->longitude);
+                if ($distancia > 200) {
+            return redirect()->back()->with('error', 'Debe estar cerca de la empresa para fichar.');
+        }
+
+        $registro = Registro::create([
+            'user_id' => $user->id,
+            'entry_time' => now()
+        ]);
+
+        $user->is_active = true;
+        $user->save();
+        Mail::to($user->email)->queue(new RegistroNotificacionMarkdown($user, 'entrada'));
+
+        return redirect()->back()->with('success', 'Entrada registrada correctamente.');
+    }
 
     /**
      * Registrar salida.
@@ -107,8 +78,8 @@ class RegistroController extends Controller
         }
 
         // Coordenadas de la empresa (cámbialas por las reales)
-        $empresaLat = 37.8830848;
-        $empresaLon = -4.7808512;
+        $empresaLat = 37.8863616;
+        $empresaLon = -4.7742976;
 
         // Calcular distancia
         $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $request->latitude, $request->longitude);
