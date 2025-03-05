@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\RegistroNotificacionMarkdown;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User; // Importamos el modelo User
 use App\Models\Registro; // Importamos el modelo Registro
 use Illuminate\Http\Request; // Importamos la clase Request para manejar las solicitudes HTTP
@@ -26,66 +26,41 @@ class RegistroController extends Controller
      * Registrar entrada.
      * Este método permite registrar la hora de entrada de un usuario.
      */
-    // public function entrada(Request $request)
-    // {
-    //     $request->validate([
-    //         'latitude' => 'required|numeric',
-    //         'longitude' => 'required|numeric',
-    //     ]);
-
-    //     $user = auth()->user();
-
-    //     if ($user->is_active) {
-    //         return redirect()->back()->with('error', 'Ya tiene una entrada registrada.');
-    //     }
-
-    //     // Coordenadas de la empresa (cámbialas por las reales)
-    //     $empresaLat = 37.8830848;
-    //     $empresaLon = -4.7808512;
-
-    //     // Calcular distancia
-    //     $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $request->latitude, $request->longitude);
-    //             if ($distancia > 200) {
-    //         return redirect()->back()->with('error', 'Debe estar cerca de la empresa para fichar.');
-    //     }
-
-    //     $registro = Registro::create([
-    //         'user_id' => $user->id,
-    //         'entry_time' => now()
-    //     ]);
-
-    //     $user->is_active = true;
-    //     $user->save();
-    //     Mail::to($user->email)->queue(new RegistroNotificacionMarkdown($user, 'entrada'));
-
-    //     return redirect()->back()->with('success', 'Entrada registrada correctamente.');
-    // }
-
     public function entrada(Request $request)
     {
-        \Log::info('Datos recibidos en la solicitud:', $request->all());
-
-        $empresaLat = 37.8830848;
-        $empresaLon = -4.7808512;
-        
-        $lat = $request->latitude;
-        $lon = $request->longitude;
-        
-        // Calcula la distancia
-        $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $lat, $lon);
-        
-        \Log::info("Distancia calculada: $distancia metros");
-        
-        // Devuelve la distancia en la respuesta para probar
-        return response()->json([
-            'latitude' => $lat,
-            'longitude' => $lon,
-            'distancia' => $distancia
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
-        
+
+        $user = auth()->user();
+
+        if ($user->is_active) {
+            return redirect()->back()->with('error', 'Ya tiene una entrada registrada.');
+        }
+
+        // Coordenadas de la empresa (cámbialas por las reales)
+        $empresaLat = 37.889258;
+        $empresaLon = -4.762155;
+
+        // Calcular distancia
+        $distancia = $this->calcularDistancia($empresaLat, $empresaLon, $request->latitude, $request->longitude);
+                if ($distancia > 200) {
+            return redirect()->back()->with('error', 'Debe estar cerca de la empresa para fichar.');
+        }
+
+        $registro = Registro::create([
+            'user_id' => $user->id,
+            'entry_time' => now()
+        ]);
+
+        $user->is_active = true;
+        $user->save();
+        Mail::to($user->email)->queue(new RegistroNotificacionMarkdown($user, 'entrada'));
+
+        return redirect()->back()->with('success', 'Entrada registrada correctamente.');
     }
-    
-    
+
     /**
      * Registrar salida.
      */
