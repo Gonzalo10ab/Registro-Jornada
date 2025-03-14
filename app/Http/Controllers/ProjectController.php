@@ -19,36 +19,42 @@ class ProjectController extends Controller
             // Si es usuario normal, solo ve los proyectos en los que está asignado
             $projects = auth()->user()->projects;
         }
-    
+
         return view('projects.index', compact('projects'));
     }
-    
-    
 
     // Método para mostrar los detalles de un proyecto específico
     public function show(Project $project)
     {
         if (auth()->user()->rol_id != 1 && !$project->users->contains(auth()->user()->id)) {
-            abort(403, 'No tienes permiso para ver este proyecto.');
+            return redirect()->back();
         }
-    
+
         return view('projects.show', compact('project'));
     }
-    
+
     public function create()
     {
-        $users = User::orderBy('id')->paginate(15); // Obtiene todos los usuarios ordenados
+        if (auth()->user()->rol_id != 1) {
+            return redirect()->back();
+        }
+
+        $users = User::orderBy('id')->paginate(15);
         return view('projects.create', compact('users'));
     }
 
     public function store(Request $request)
     {
+        if (auth()->user()->rol_id != 1) {
+            return redirect()->back();
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
-            'users' => 'required|array', // Validamos que haya al menos un usuario
-            'users.*' => 'exists:users,id' // Validamos que los usuarios existan
+            'users' => 'required|array',
+            'users.*' => 'exists:users,id'
         ]);
 
         // Crear el proyecto
@@ -68,17 +74,19 @@ class ProjectController extends Controller
     public function edit(Project $project)
     {
         if (auth()->user()->rol_id != 1 && !$project->users->contains(auth()->user()->id)) {
-            abort(403, 'No tienes permiso para editar este proyecto.');
+            return redirect()->back();
         }
-    
+
         $users = User::orderBy('name')->get();
         return view('projects.edit', compact('project', 'users'));
     }
-    
-    
-    
+
     public function update(Request $request, Project $project)
     {
+        if (auth()->user()->rol_id != 1 && !$project->users->contains(auth()->user()->id)) {
+            return redirect()->back();
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -86,30 +94,29 @@ class ProjectController extends Controller
             'users' => 'nullable|array',
             'users.*' => 'exists:users,id'
         ]);
-    
+
         // Actualizar los datos del proyecto
         $project->update([
             'name' => $request->name,
             'description' => $request->description,
             'due_date' => $request->due_date,
         ]);
-    
+
         // Sincronizar usuarios asignados
         $project->users()->sync($request->users);
-    
+
         return redirect()->route('projects.show', $project->id)->with('success', 'Proyecto actualizado correctamente.');
     }
-    
+
     public function destroy(Project $project)
     {
         if (auth()->user()->rol_id != 1) {
-            abort(403, 'No tienes permiso para eliminar este proyecto.');
+            return redirect()->back();
         }
-    
+
         $project->delete();
-    
+
         return redirect()->route('admin.projects.index')
             ->with('success', 'Proyecto eliminado correctamente.');
     }
-    
 }
