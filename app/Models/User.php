@@ -29,6 +29,12 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'rol_id');
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user')->withTimestamps();
+    }
+
+
     /**
      * Relación: Un usuario tiene muchos registros de entrada/salida.
      */

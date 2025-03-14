@@ -1,10 +1,12 @@
 <?php
 
+use App\Models\Project;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RegistroController;
-use App\Http\Controllers\AdminController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RegistroController;
 
 // Rutas de autenticación (Laravel Breeze)
 require __DIR__.'/auth.php';
@@ -23,11 +25,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id?}', 'historial')->name('historial');
         Route::get('/pdf/{id?}', 'exportarPDF')->name('historial.pdf');
     });
-
+    
     // Registro de entrada y salida
     Route::prefix('registro')->controller(RegistroController::class)->group(function () {
         Route::post('/entrada', 'entrada')->name('entrada');
         Route::post('/salida', 'salida')->name('salida');
+    });
+
+    Route::prefix('proyectos')->controller(ProjectController::class)->group(function () {
+        Route::get('/', 'index')->name('projects.index'); // Lista de proyectos asignados al usuario
+        Route::get('/{project}', 'show')->name('projects.show'); // Detalle de un proyecto específico
     });
 
     // Gestión del perfil
@@ -48,6 +55,17 @@ Route::middleware('auth')->group(function () {
         // Descargar historial de un usuario o de varios seleccionados en PDF
         Route::get('/usuarios/{id}/pdf', 'exportarPDFUsuario')->name('admin.usuarios.pdf');
         Route::post('/usuarios/pdf', 'exportarPDFMasivo')->name('admin.usuarios.pdf-masivo');
+
+        // Rutas de administración de proyectos
+        Route::controller(ProjectController::class)->group(function () {
+            Route::get('/proyectos', 'index')->name('admin.projects.index'); // Lista de todos los proyectos
+            Route::get('/proyectos/crear', 'create')->name('admin.projects.create'); // Formulario de creación
+            Route::post('/proyectos/crear', 'store')->name('admin.projects.store');  // Guardar proyecto
+            Route::get('/proyectos/{project}/editar', 'edit')->name('admin.projects.edit'); // Editar proyecto
+            Route::post('/proyectos/{project}/actualizar', 'update')->name('admin.projects.update'); // Guardar edición
+            Route::delete('/proyectos/{project}', 'destroy')->name('admin.projects.destroy'); // Eliminar proyecto
+        });
     });    
+    
 
 });
